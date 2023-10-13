@@ -1,6 +1,5 @@
 package com.apex.codeassesment.data
 
-import android.util.Log
 import com.apex.codeassesment.data.local.LocalDataSource
 import com.apex.codeassesment.data.model.User
 import com.apex.codeassesment.data.remote.Api
@@ -52,11 +51,7 @@ class UserRepositoryImpl @Inject constructor(
             }
 
             response?.let {
-                emit(
-                    Resource.Success(
-                        data = it
-                    )
-                )
+                emit(Resource.Success(data = it.mListUser))
             }
         }
     }

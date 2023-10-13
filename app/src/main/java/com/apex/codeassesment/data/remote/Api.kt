@@ -10,7 +10,7 @@ interface Api {
     suspend fun getUser(): UserResponseDto
 
     @GET("api?results=10")
-    suspend fun getUsers(): List<User>
+    suspend fun getUsers(): UserResponseDto
 
     companion object {
         const val BASE_URL = "https://randomuser.me/"

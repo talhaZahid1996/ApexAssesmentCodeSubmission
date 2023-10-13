@@ -40,5 +40,26 @@ class MainActivityVM @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    private val _mListUser = MutableStateFlow(ResponseState<List<User>>())
+    val mListUser: StateFlow<ResponseState<List<User>>> = _mListUser
+
+    fun getUsers() = viewModelScope.launch {
+        repository.getUsers().onEach {
+            when (it) {
+                is Resource.Loading -> {
+                    _mListUser.value = ResponseState(isLoading = true)
+                }
+
+                is Resource.Error -> {
+                    _mListUser.value = ResponseState(error = it.message ?: "")
+                }
+
+                is Resource.Success -> {
+                    _mListUser.value = ResponseState(data = it.data)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
 
 }

@@ -2,15 +2,20 @@ package com.apex.codeassesment.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.apex.codeassesment.R
-import com.apex.codeassesment.data.UserRepository
 import com.apex.codeassesment.data.model.User
 import com.apex.codeassesment.databinding.ActivityMainBinding
 import com.apex.codeassesment.ui.details.DetailsActivity
+import com.apex.codeassesment.util.snackBar
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 // TODO (5 points): Move calls to repository to Presenter or ViewModel.
 // TODO (5 points): Use combination of sealed/Dataclasses for exposing the data required by the view from viewModel .
@@ -25,26 +30,36 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    private var randomUser: User = User()
-        set(value) {
-            // userImageView.setImageBitmap(refreshedUser.image)
-            Glide.with(binding.mainImage.context)
-                .load(value.picture?.medium)
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(binding.mainImage)
-            binding.mainName.text = value.name!!.first
-            binding.mainEmail.text = value.email
-            field = value
-        }
+    private val viewModel: MainActivityVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        viewModel.getUser()
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.user.collect {
+                    if (it.isLoading) {
+                        Log.e("MainActivity", "onCreate: $it")
+                    }
+                    if (it.error.isNotBlank()) {
+                        binding.root.snackBar(it.error)
+                    }
+                    it.data?.let { data ->
+                        Glide.with(binding.mainImage.context)
+                            .load(data.picture?.medium)
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .into(binding.mainImage)
+                        binding.mainName.text = data.name?.first
+                        binding.mainEmail.text = data.email
+                    }
+                }
+            }
+        }
+
+        binding.mainRefreshButton.setOnClickListener { viewModel.getUser(true) }
 
 //        userListView!!.adapter = arrayAdapter
         /*binding.mainUserList.setOnItemClickListener { parent, _, position, _ ->
@@ -55,17 +70,17 @@ class MainActivity : AppCompatActivity() {
             )
         }*/
 
-        randomUser = userRepository.getSavedUser()
-
-        binding.mainSeeDetailsButton.setOnClickListener { navigateDetails(randomUser) }
-
-        binding.mainRefreshButton.setOnClickListener { randomUser = userRepository.getUser(true) }
-
-        binding.mainUserListButton.setOnClickListener {
-            val users = userRepository.getUsers()
-//            arrayAdapter.clear()
-//            arrayAdapter.addAll(users)
-        }
+//        randomUser = userRepository.getSavedUser()
+//
+//        binding.mainSeeDetailsButton.setOnClickListener { navigateDetails(randomUser) }
+//
+//        binding.mainRefreshButton.setOnClickListener { randomUser = userRepository.getUser(true) }
+//
+//        binding.mainUserListButton.setOnClickListener {
+//            val users = userRepository.getUsers()
+////            arrayAdapter.clear()
+////            arrayAdapter.addAll(users)
+//        }
     }
 
     // TODO (2 points): Convert to extenstion function.

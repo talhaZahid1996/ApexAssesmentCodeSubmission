@@ -1,5 +1,6 @@
 package com.apex.codeassesment.data.local
 
+import android.util.Log
 import com.apex.codeassesment.data.model.User
 import com.apex.codeassesment.data.model.User.Companion.createRandom
 import com.squareup.moshi.Moshi
@@ -18,18 +19,17 @@ class LocalDataSource @Inject constructor(
     fun loadUser(): User {
         val serializedUser = preferencesManager.loadUser()
         val jsonAdapter = moshi.adapter(User::class.java)
-        return try {
-            val user = if (serializedUser != null) {
-                jsonAdapter.fromJson(serializedUser) ?: createRandom()
-            } else {
+        return createRandom()
+        /*return try {
+            if (serializedUser.isNullOrBlank()) {
                 createRandom()
+            } else {
+                jsonAdapter.fromJson(serializedUser) ?: createRandom()
             }
-            return user
-
         } catch (e: Exception) {
             e.printStackTrace()
             createRandom()
-        }
+        }*/
     }
 
     fun saveUser(user: User) {

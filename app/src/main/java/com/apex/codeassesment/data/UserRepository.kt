@@ -1,30 +1,12 @@
 package com.apex.codeassesment.data
 
-import com.apex.codeassesment.data.local.LocalDataSource
 import com.apex.codeassesment.data.model.User
-import com.apex.codeassesment.data.remote.RemoteDataSource
-import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
+import com.apex.codeassesment.util.Resource
+import kotlinx.coroutines.flow.Flow
 
-// TODO (2 points) : Add tests
-// TODO (3 points) : Hide this class through an interface, inject the interface in the clients instead and remove warnings
-class UserRepository @Inject constructor(
-  private val localDataSource: LocalDataSource,
-  private val remoteDataSource: RemoteDataSource
-) {
+interface UserRepository {
 
-  private val savedUser = AtomicReference(User())
+    suspend fun getUser(forceUpdate: Boolean): Flow<Resource<User>>
+    suspend fun getUsers(): Flow<Resource<List<User>>>
 
-  fun getSavedUser() = localDataSource.loadUser()!!
-
-  fun getUser(forceUpdate: Boolean): User {
-    if (forceUpdate) {
-      val user = remoteDataSource.LoadUser()
-      localDataSource.saveUser(user)
-      savedUser.set(user)
-    }
-    return savedUser.get()
-  }
-
-  fun getUsers() = remoteDataSource.loadUsers()
 }

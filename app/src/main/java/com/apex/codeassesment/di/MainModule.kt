@@ -21,5 +21,12 @@ object MainModule {
 
     @Provides
     @Singleton
-    fun providePreferencesManager(): PreferencesManager = PreferencesManager()
+    fun providePreferencesManager(sharedPreferences: SharedPreferences): PreferencesManager =
+        PreferencesManager(sharedPreferences)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(sharedPreferences: SharedPreferences): PreferencesManager =
+        PreferencesManager(sharedPreferences)
+
 }

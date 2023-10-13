@@ -1,18 +1,15 @@
 package com.apex.codeassesment.ui.main
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.apex.codeassesment.R
 import com.apex.codeassesment.data.UserRepository
 import com.apex.codeassesment.data.model.User
+import com.apex.codeassesment.databinding.ActivityMainBinding
 import com.apex.codeassesment.ui.details.DetailsActivity
+import com.bumptech.glide.Glide
 import javax.inject.Inject
 
 // TODO (5 points): Move calls to repository to Presenter or ViewModel.
@@ -25,13 +22,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     // TODO (2 points): Convert to view binding
-    private var userImageView: ImageView? = null
-    private var userNameTextView: TextView? = null
-    private var userEmailTextView: TextView? = null
-    private var seeDetailsButton: Button? = null
-    private var refreshUserButton: Button? = null
-    private var showUserListButton: Button? = null
-    private var userListView: ListView? = null
+
+    private lateinit var binding: ActivityMainBinding
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -40,44 +32,39 @@ class MainActivity : AppCompatActivity() {
         set(value) {
             // TODO (1 point): Use Glide to load images after getting the data from endpoints mentioned in RemoteDataSource
             // userImageView.setImageBitmap(refreshedUser.image)
-            userNameTextView!!.text = value.name!!.first
-            userEmailTextView!!.text = value.email
+            Glide.with(binding.mainImage.context)
+                .load(value.picture?.medium)
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .into(binding.mainImage)
+            binding.mainName.text = value.name!!.first
+            binding.mainEmail.text = value.email
             field = value
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        sharedContext = this
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val arrayAdapter = ArrayAdapter<User>(this, android.R.layout.simple_list_item_1)
-
-        userImageView = findViewById(R.id.main_image)
-        userNameTextView = findViewById(R.id.main_name)
-        userEmailTextView = findViewById(R.id.main_email)
-        seeDetailsButton = findViewById(R.id.main_see_details_button)
-        refreshUserButton = findViewById(R.id.main_refresh_button)
-        showUserListButton = findViewById(R.id.main_user_list_button)
-        userListView = findViewById(R.id.main_user_list)
-        userListView!!.adapter = arrayAdapter
-        userListView?.setOnItemClickListener { parent, _, position, _ ->
+//        userListView!!.adapter = arrayAdapter
+        /*binding.mainUserList.setOnItemClickListener { parent, _, position, _ ->
             navigateDetails(
                 parent.getItemAtPosition(
                     position
                 ) as User
             )
-        }
+        }*/
 
         randomUser = userRepository.getSavedUser()
 
-        seeDetailsButton!!.setOnClickListener { navigateDetails(randomUser) }
+        binding.mainSeeDetailsButton.setOnClickListener { navigateDetails(randomUser) }
 
-        refreshUserButton!!.setOnClickListener { randomUser = userRepository.getUser(true) }
+        binding.mainRefreshButton.setOnClickListener { randomUser = userRepository.getUser(true) }
 
-        showUserListButton!!.setOnClickListener {
+        binding.mainUserListButton.setOnClickListener {
             val users = userRepository.getUsers()
-            arrayAdapter.clear()
-            arrayAdapter.addAll(users)
+//            arrayAdapter.clear()
+//            arrayAdapter.addAll(users)
         }
     }
 
@@ -87,7 +74,4 @@ class MainActivity : AppCompatActivity() {
         startActivity(putExtra)
     }
 
-    companion object {
-        var sharedContext: Context? = null
-    }
 }

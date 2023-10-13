@@ -1,10 +1,7 @@
 package com.apex.codeassesment
 
 import android.app.Application
-import com.apex.codeassesment.di.DaggerMainComponent
-import com.apex.codeassesment.di.MainComponent
+import dagger.hilt.android.HiltAndroidApp
 
-class RandomUserApplication : Application(), MainComponent.Injector {
-
-  override val mainComponent = DaggerMainComponent.factory().create(this)
-}
+@HiltAndroidApp
+class RandomUserApplication : Application()

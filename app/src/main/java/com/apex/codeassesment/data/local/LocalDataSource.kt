@@ -8,19 +8,24 @@ import javax.inject.Inject
 // TODO (3 points): Convert to Kotlin
 // TODO (2 point): Add tests
 // TODO (1 point): Use the correct naming conventions.
-class LocalDataSource @Inject constructor( // TODO (3 points): Inject all dependencies instead of instantiating them.
-    private val preferencesManager: PreferencesManager
+// TODO (3 points): Inject all dependencies instead of instantiating them.
+// TODO (1 point): Address Android Studio warning
+class LocalDataSource @Inject constructor(
+    private val preferencesManager: PreferencesManager,
+    private val moshi: Moshi
 ) {
-    private val moshi = Moshi.Builder().build()
+
     fun loadUser(): User {
         val serializedUser = preferencesManager.loadUser()
-        val jsonAdapter = moshi.adapter(
-            User::class.java
-        )
+        val jsonAdapter = moshi.adapter(User::class.java)
         return try {
-            // TODO (1 point): Address Android Studio warning
-            val user = jsonAdapter.fromJson(serializedUser)
-            user ?: createRandom()
+            val user = if (serializedUser != null) {
+                jsonAdapter.fromJson(serializedUser) ?: createRandom()
+            } else {
+                createRandom()
+            }
+            return user
+
         } catch (e: Exception) {
             e.printStackTrace()
             createRandom()

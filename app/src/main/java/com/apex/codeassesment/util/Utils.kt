@@ -1,13 +1,14 @@
 package com.apex.codeassesment.util
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Toast
-import androidx.fragment.app.Fragment
+import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
+import com.apex.codeassesment.R
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 
 fun <A : Activity> FragmentActivity.openActivity(
@@ -27,10 +28,13 @@ fun View.snackBar(message: String) {
     snackBar.show()
 }
 
-inline fun Context.toast(message: () -> String) {
-    Toast.makeText(this, message(), Toast.LENGTH_LONG).show()
-}
+fun ImageView.loadImage(image: Any?) {
 
-inline fun Fragment.toast(message: () -> String) {
-    Toast.makeText(this.context, message(), Toast.LENGTH_LONG).show()
+    try {
+        Glide.with(this.context).load(image).placeholder(R.drawable.ic_image_placeholder)
+            .into(this)
+    } catch (e: Exception) {
+        Log.e("Utils", "loadImage: ${e.printStackTrace()}")
+    }
+
 }

@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -12,6 +14,7 @@ import com.apex.codeassesment.R
 import com.apex.codeassesment.data.model.User
 import com.apex.codeassesment.databinding.ActivityMainBinding
 import com.apex.codeassesment.ui.details.DetailsActivity
+import com.apex.codeassesment.util.loadImage
 import com.apex.codeassesment.util.openActivity
 import com.apex.codeassesment.util.snackBar
 import com.bumptech.glide.Glide
@@ -53,12 +56,15 @@ class MainActivity : AppCompatActivity() {
                     }
                     it.data?.let { data ->
                         user = data
-                        Glide.with(binding.mainImage.context)
-                            .load(data.picture?.medium)
-                            .placeholder(R.drawable.ic_launcher_foreground)
-                            .into(binding.mainImage)
-                        binding.mainName.text = data.name?.first
-                        binding.mainEmail.text = data.email
+                        binding.mainImage.loadImage(data.picture?.medium)
+                        binding.mainName.text = buildSpannedString {
+                            bold { append("Name: ") }
+                            append(data.name?.first)
+                        }
+                        binding.mainEmail.text = buildSpannedString {
+                            bold { append("Email: ") }
+                            append(data.email)
+                        }
                     }
                 }
             }
